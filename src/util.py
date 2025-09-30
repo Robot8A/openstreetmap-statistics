@@ -9,7 +9,7 @@ import pandas as pd
 
 def save_json(file_path, obj):
     with Path(file_path).open("w", encoding="UTF-8") as json_file:
-        json_file.write(pd.io.json.dumps(obj, double_precision=2))
+        json.dump(obj, json_file, indent=4)
 
 
 def load_json(file_path):

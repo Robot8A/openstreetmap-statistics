@@ -630,6 +630,67 @@ topics = {
             ],
         },
     },
+    MapRoulette: {
+        "How often are edits created with the help of MapRoulette?": {
+            url_hash: "785b",
+            content_functions: [
+                add_single_line_plot(
+                    "percent of edits created with MapRoulette per month",
+                    "maproulette_edit_count_monthly_percent",
+                    { percent: true },
+                ),
+                add_single_line_plot("edits created with MapRoulette per month", "maproulette_edit_count_monthly"),
+            ],
+        },
+        "What's the total amount of contributors, edits and changesets that use MapRoulette over time?": {
+            url_hash: "0725",
+            content_functions: [
+                add_single_line_plot(
+                    "total contributor count that used MapRoulette",
+                    "maproulette_new_contributor_count_monthly_accumulated",
+                ),
+                add_single_line_plot(
+                    "total edit count that used MapRoulette",
+                    "maproulette_edit_count_monthly_accumulated",
+                ),
+                add_single_line_plot(
+                    "total changeset count that used MapRoulette",
+                    "maproulette_changeset_count_monthly_accumulated",
+                ),
+            ],
+        },
+        "How many distinct users use MapRoulette per month?": {
+            url_hash: "da7d",
+            content_functions: [
+                add_single_line_plot("contributors using MapRoulette per month", "maproulette_contributor_count_monthly"),
+            ],
+        },
+        "Where is MapRoulette used?": {
+            url_hash: "ed95",
+            content_functions: [add_map_plot("total edits", "maproulette_edit_count_map_total")],
+        },
+        "What's the average edit count per changeset over time?": {
+            url_hash: "ae72",
+            content_functions: [
+                add_single_line_plot(
+                    "average number of edits per changeset per month using MapRoulette",
+                    "maproulette_avg_edit_count_per_changeset_monthly",
+                ), //, "average number of edits per changeset")
+            ],
+        },
+        // "What are the most used bot tools?": {
+        //     url_hash: "e985",
+        //     content_functions: [
+        //         add_table(
+        //             "yearly edit count per bot",
+        //             "bot_created_by_top_100_edit_count_yearly_total",
+        //             "years",
+        //             "Bot",
+        //             "created_by_name_to_link",
+        //         ),
+        //     ],
+        // },
+    },
     Tags: {
         "What are the most popular tags for changesets?": {
             url_hash: "b370",

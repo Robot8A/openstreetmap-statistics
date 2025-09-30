@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import util
@@ -74,7 +73,7 @@ def save_topic_general():
         ddf_year_user_edits = (
             ddf.groupby(["year_index", "user_index"], observed=False)["edits"].sum().compute().reset_index("year_index")
         )
-        merge = dd.merge(ddf_year_user_edits, ddf_user_first_edit_year, on="user_index")
+        merge = pd.merge(ddf_year_user_edits, ddf_user_first_edit_year, on="user_index")
         merge["first edit"] = merge["first_edit_year_index"].apply(
             lambda i: f"{YEARS[i-1]}-{YEARS[i]}" if i % 2 else f"{YEARS[i]}-{int(YEARS[i])+1}",
         )
@@ -117,7 +116,8 @@ def save_topic_general():
     created_by_tag_to_index = util.load_tag_to_index(DATA_DIR, "created_by")
     try:
         map_me_indices = np.array([created_by_tag_to_index["MAPS.ME"]])
-    except KeyError:
+    except KeyError as e:
+        print(e)
         map_me_indices = np.array([])
     util.save_data(
         TIME_DICT,
@@ -393,6 +393,51 @@ def save_topic_streetcomplete():
     )
 
 
+def save_topic_maproulette():
+    ddf = util.load_ddf(
+        DATA_DIR,
+        "general",
+        ("month_index", "edits", "user_index", "pos_x", "pos_y", "maproulette", "created_by"),
+    )
+    util.save_base_statistics(
+        DATA_DIR,
+        progress_bar,
+        "maproulette",
+        ddf[ddf["maproulette"]],
+        edit_count_monthly=True,
+        changeset_count_monthly=True,
+        contributor_count_monthly=True,
+        new_contributor_count_monthly=True,
+        edit_count_map_total=True,
+    )
+    util.save_percent("maproulette_edit_count_monthly", "general_edit_count_monthly", "months", "edits")
+    util.save_accumulated("maproulette_new_contributor_count_monthly")
+    util.save_accumulated("maproulette_edit_count_monthly")
+    util.save_accumulated("maproulette_changeset_count_monthly")
+    util.save_div(
+        "maproulette_avg_edit_count_per_changeset_monthly",
+        "maproulette_edit_count_monthly",
+        "maproulette_changeset_count_monthly",
+        "months",
+        "changesets",
+    )
+
+    util.save_base_statistics_tag(
+        DATA_DIR,
+        progress_bar,
+        "created_by",
+        ddf[ddf["maproulette"]],
+        k=100,
+        prefix="maproulette",
+        edit_count_monthly=True,
+    )
+    util.save_monthly_to_yearly("maproulette_created_by_top_100_edit_count_monthly")
+    util.save_merged_yearly_total_data(
+        "maproulette_created_by_top_100_edit_count_yearly",
+        "maproulette_created_by_top_100_edit_count_total",
+    )
+
+
 def save_topic_bot():
     ddf = util.load_ddf(
         DATA_DIR,
@@ -457,24 +502,26 @@ def save_topic_tags():
     selected_editors = ["JOSM", "iD", "Potlatch", "StreetComplete", "Rapid", "Vespucci"]
     created_by_tag_to_index = util.load_tag_to_index(DATA_DIR, "created_by")
     for selected_editor_name in selected_editors:
-        editor_index = created_by_tag_to_index[selected_editor_name]
+        try:
+            editor_index = created_by_tag_to_index[selected_editor_name]
 
-        util.save_base_statistics_tag(
-            DATA_DIR,
-            progress_bar,
-            "all_tags",
-            ddf_all_tags[ddf_all_tags["created_by"] == editor_index],
-            prefix=f"created_by_{selected_editor_name}",
-            k=10,
-            changeset_count_monthly=True,
-        )
-        util.save_percent(
-            f"created_by_{selected_editor_name}_all_tags_top_10_changeset_count_monthly",
-            "created_by_top_100_changeset_count_monthly",
-            "months",
-            selected_editor_name,
-        )
-
+            util.save_base_statistics_tag(
+                DATA_DIR,
+                progress_bar,
+                "all_tags",
+                ddf_all_tags[ddf_all_tags["created_by"] == editor_index],
+                prefix=f"created_by_{selected_editor_name}",
+                k=10,
+                changeset_count_monthly=True,
+            )
+            util.save_percent(
+                f"created_by_{selected_editor_name}_all_tags_top_10_changeset_count_monthly",
+                "created_by_top_100_changeset_count_monthly",
+                "months",
+                selected_editor_name,
+            )
+        except KeyError as e:
+            print(e)
 
 def save_name_to_link():
     util.save_json(
@@ -494,13 +541,14 @@ def save_name_to_link():
 def main():
     save_name_to_link()
 
-    save_topic_general()
-    save_topic_editing_software()
-    save_topic_corporation()
-    save_topic_source_imagery_hashtag()
-    save_topic_streetcomplete()
-    save_topic_bot()
-    save_topic_tags()
+    #save_topic_general()
+    #save_topic_editing_software()
+    #save_topic_corporation()
+    #save_topic_source_imagery_hashtag()
+    #save_topic_streetcomplete()
+    save_topic_maproulette()
+    #save_topic_bot()
+    #save_topic_tags()
 
 
 if __name__ == "__main__":

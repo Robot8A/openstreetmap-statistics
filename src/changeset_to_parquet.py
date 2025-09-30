@@ -298,6 +298,7 @@ def save_data(parquet_save_dir, file_counter, batch_size, data_dict):
         "corporation": np.array(data_dict["corporation"], dtype=np.uint8),
         "streetcomplete": np.array(data_dict["streetcomplete"], dtype=np.uint16),
         "bot": np.array(data_dict["bot"], dtype=np.bool_),
+        "maproulette": np.array(data_dict["maproulette"], dtype=np.bool_),
     }
     save_dir = Path(parquet_save_dir) / "general"
     parquet_write(
@@ -350,6 +351,7 @@ def init_data_dict():
         "corporation": [],
         "streetcomplete": [],
         "bot": [],
+        "maproulette": [],
         "comment": [],
         "local": [],
         "host": [],
@@ -432,6 +434,11 @@ def main():
                 data_dict["streetcomplete"].append(streetcomplete)
                 data_dict["corporation"].append(get_corporation_index(user_name, index_dicts, user_name_to_corporation))
                 data_dict["bot"].append(tags.get("bot") == "yes")
+                data_dict["maproulette"].append(
+                    (tags.get("comment") and re.match("#maproulette", tags.get("comment")))
+                    or
+                    (tags.get("hashtags") and ("maproulette" in tags.get("hashtags").split(";")))
+                )
 
                 for index in get_imagery(tags, index_dicts, replace_rules):
                     data_dict["imagery_changeset_index"].append(changeset_counter)
@@ -484,13 +491,17 @@ def main():
                 data_dict["pos_y"].append(pos_y)
 
                 tags = get_tags_opl(data[11][1:-1])
-                changeset_fully_read = True
 
                 created_by, streetcomplete = get_created_by_and_streetcomplete(tags, index_dicts, replace_rules)
                 data_dict["created_by"].append(created_by)
                 data_dict["streetcomplete"].append(streetcomplete)
                 data_dict["corporation"].append(get_corporation_index(user_name, index_dicts, user_name_to_corporation))
-                data_dict["bot"].append("bot" in tags and tags["bot"] == "yes")
+                data_dict["bot"].append(
+                    ("comment" in tags and re.match("#maproulette", tags["comment"]))
+                    or
+                    ("bot" in tags and tags["bot"] == "yes")
+                )
+                data_dict["maproulette"].append("hashtags" in tags and "maproulette" in tags["hashtags"].split(";"))
 
                 for index in get_imagery(tags, index_dicts, replace_rules):
                     data_dict["imagery_changeset_index"].append(changeset_counter)
