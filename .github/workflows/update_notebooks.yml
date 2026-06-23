@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if it's the second Monday of the month or manual trigger
-        id: check_second_monday
+      - name: Check if it's the third Monday of the month or manual trigger
+        id: check_third_monday
         run: |
-          echo "RUN_JOBS=$(python -c "import datetime, sys; today=datetime.date.today(); first_day=today.replace(day=1); first_monday=first_day+datetime.timedelta(days=(7-first_day.weekday())%7); second_monday=first_monday+datetime.timedelta(days=7); print('true' if today==second_monday or '${{ github.event_name }}'=='workflow_dispatch' else 'false')")" >> $GITHUB_ENV
+          echo "RUN_JOBS=$(python -c "import datetime, sys; today=datetime.date.today(); first_day=today.replace(day=1); first_monday=first_day+datetime.timedelta(days=(7-first_day.weekday())%7); third_monday=first_monday+datetime.timedelta(days=14); print('true' if today==third_monday or '${{ github.event_name }}'=='workflow_dispatch' else 'false')")" >> $GITHUB_ENV
         shell: bash
 
       - name: Checkout repository
