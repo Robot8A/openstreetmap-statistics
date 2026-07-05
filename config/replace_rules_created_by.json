@@ -148,6 +148,13 @@
             "DataNovaImportScripts "
         ]
     },
+    "DeFlock": {
+        "link": "https://wiki.openstreetmap.org/wiki/Deflock",
+        "starts_with": [
+            "DeFlock "
+        ],
+        "type": "mobile_editor"
+    },
     "Deriviste": {
         "type": "desktop_editor"
     },
